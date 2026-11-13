@@ -66,7 +66,7 @@ button:disabled{opacity:.35;cursor:default}
 
 <div id="app" hidden>
 <header><div class="row"><h1 class="sp">📚 Minhaz's Shelf</h1><button onclick="settings()" title="সেটিংস">⚙️</button></div>
-<div class="row" style="margin-top:8px"><input id="q" placeholder="🔍 বই বা লেখক খুঁজুন" oninput="render()"><select id="fcat" onchange="render()" style="max-width:46%"></select></div></header>
+<div class="row" style="margin-top:8px"><input id="q" placeholder="🔍 বই বা লেখক খুঁজুন" oninput="render()"></div><div class="row" style="margin-top:6px"><select id="fcat" onchange="render()"></select><select id="fau" onchange="render()"></select></div></header>
 <main><div class="chips" id="chips"></div><div id="hero"></div><div id="stats" style="color:var(--mute);font-size:14px;margin:4px 0 14px"></div><div class="grid" id="grid"></div></main>
 <button class="fab p" onclick="bookForm()" title="বই যোগ করুন">＋</button></div>
 
@@ -138,10 +138,11 @@ const cover=b=>b.cover?`background-image:url(${b.cover})`:`background:linear-gra
 const pct=b=>b.status=='finished'?100:b.pages?Math.round((b.page||0)/b.pages*100):0;
 const ST={want:'পড়তে চাই',reading:'পড়ছি',finished:'শেষ করেছি'};
 function render(){
- const q=$('#q').value.trim().toLowerCase(),fc=$('#fcat').value,used=[...new Set(books.map(b=>b.cat))];
+ const q=$('#q').value.trim().toLowerCase(),fc=$('#fcat').value,used=[...new Set(books.map(b=>b.cat))],authors=[...new Set(books.map(b=>b.author).filter(Boolean))].sort((x,y)=>x.localeCompare(y,'bn'));let fa=$('#fau').value;if(fa&&!authors.includes(fa))fa='';
  $('#fcat').innerHTML='<option value="">সব ক্যাটাগরি</option>'+used.map(c=>`<option ${c==fc?'selected':''}>${esc(c)}</option>`).join('');
+ $('#fau').innerHTML='<option value="">সব লেখক</option>'+authors.map(a=>`<option value="${esc(a)}" ${a==fa?'selected':''}>${esc(a)} (${bd(books.filter(b=>b.author==a).length)})</option>`).join('');
  $('#chips').innerHTML=[['all','সব'],['reading','📖 পড়ছি'],['want','🔖 পড়তে চাই'],['finished','✅ শেষ']].map(([k,l])=>`<button class="${fst==k?'on':''}" onclick="fst='${k}';render()">${l}</button>`).join('')+`<button class="g" onclick="srt=srt=='serial'?'recent':'serial';localStorage.srt=srt;render()">↕ ${srt=='serial'?'ক্রমানুসারে':'সাম্প্রতিক আগে'}</button>`;
- const L=books.filter(b=>(!q||(b.title+b.author).toLowerCase().includes(q))&&(!fc||b.cat==fc)&&(fst=='all'||b.status==fst)).sort((a,b)=>srt=='serial'?a.added-b.added:(b.last||b.added)-(a.last||a.added));
+ const L=books.filter(b=>(!q||(b.title+b.author).toLowerCase().includes(q))&&(!fc||b.cat==fc)&&(!fa||b.author==fa)&&(fst=='all'||b.status==fst)).sort((a,b)=>srt=='serial'?a.added-b.added:(b.last||b.added)-(a.last||a.added));
  const ser=new Map([...books].sort((a,b)=>a.added-b.added).map((b,i)=>[b.id,i+1]));
  const rd=books.filter(b=>b.status=='reading'&&b.file).sort((a,b)=>b.last-a.last)[0],nx=[...books].sort((a,b)=>a.added-b.added).find(b=>b.status=='want'&&b.file),c=rd||nx,lab=c?(rd?'যেখানে ছিলেন':'এরপর পড়ুন · '+ord(ser.get(c.id))+' বই'):'';
  $('#hero').innerHTML=c&&!q?`<div class="hero" onclick="openBook(${c.id})"><div class="cv" style="${cover(c)}"></div><div style="flex:1"><small style="color:var(--mute)">${lab}</small><h2 style="font-size:19px">${esc(c.title)}</h2><div style="color:var(--mute)">${esc(c.author)}</div><div class="bar"><i style="width:${pct(c)}%"></i></div><small style="color:var(--mute)">পৃষ্ঠা ${c.page||1}/${c.pages} · ${pct(c)}%</small></div><button class="p">${rd?'চালিয়ে যান':'শুরু করুন'}</button></div>`:'';
@@ -154,7 +155,7 @@ const closeM=()=>$('#m')?.remove();
 /* ---------- add / edit ---------- */
 function bookForm(id){const b=books.find(x=>x.id==id)||{};const cs=c=>`<option ${c==b.cat?'selected':''}>${esc(c)}</option>`;
  modal(`<h2>${id?'বই সম্পাদনা':'নতুন বই'}</h2><br>${id?'':'<label>PDF ফাইল (না থাকলেও চলবে — অফলাইনে পড়া বই)</label><input type="file" id="ff" accept="application/pdf" onchange="if(!$(\'#ft\').value)$(\'#ft\').value=this.files[0].name.replace(/\\.pdf$/i,\'\')">'}
- <label>বইয়ের নাম *</label><input id="ft" value="${esc(b.title)}"><label>লেখকের নাম</label><input id="fa" value="${esc(b.author)}">
+ <label>বইয়ের নাম *</label><input id="ft" value="${esc(b.title)}"><label>লেখকের নাম</label><input id="fa" list="authl" autocomplete="off" placeholder="নতুন লিখুন, অথবা আগের লেখক বেছে নিন" value="${esc(b.author)}"><datalist id="authl">${[...new Set(books.map(x=>x.author).filter(Boolean))].map(a=>`<option value="${esc(a)}">`).join('')}</datalist>
  <label>ভাষা</label><select id="fl"><option value="bn">বাংলা বই</option><option value="en" ${b.lang=='en'?'selected':''}>ইংরেজি বই</option></select>
  <label>ক্যাটাগরি</label><div class="row"><select id="fc">${custom.length?`<optgroup label="আমার ক্যাটাগরি">${custom.map(cs).join('')}</optgroup>`:''}<optgroup label="জনপ্রিয় থেকে সাজানো">${CATS.map(cs).join('')}</optgroup></select><button class="g" onclick="newCat()" style="white-space:nowrap">＋ নতুন</button></div><br>
  <label>অবস্থা</label><select id="fs">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${(b.status||'want')==k?'selected':''}>${k=='finished'?'শেষ করেছি (অফলাইনে পড়েছি)':v}</option>`).join('')}</select>
