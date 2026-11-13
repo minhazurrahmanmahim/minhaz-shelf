@@ -1,0 +1,240 @@
+<!doctype html><html lang="bn" data-t="light"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Minhaz's Shelf</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#f6f1e7"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:light}html[data-t=dark]{color-scheme:dark}
+:root{--bg:#f6f1e7;--card:#fffdf8;--ink:#2b2620;--mute:#7a6f60;--acc:#b5562b;--soft:#f0e3d0;--line:#e5dccb;--sh:0 8px 24px #3a2a1a26;--stage:#e6dcc8}
+html[data-t=dark]{--bg:#16130f;--card:#211d17;--ink:#efe6d6;--mute:#a0937e;--acc:#e08a56;--soft:#3a2d20;--line:#352e25;--sh:0 8px 24px #000a;--stage:#0e0c09}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 'Hind Siliguri',system-ui,sans-serif;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:var(--soft);border-radius:12px;padding:9px 14px}
+button.p{background:var(--acc);color:#fff;font-weight:600}button.g{background:none;border:1px solid var(--line)}
+input,select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:4px 0 12px}
+label{font-size:13px;color:var(--mute)}h1,h2{font-family:Lora,'Hind Siliguri',serif;margin:0}
+[hidden]{display:none!important}
+#lock{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);padding:20px;z-index:99}
+#lock form{width:min(360px,100%);text-align:center;background:var(--card);padding:32px 24px;border-radius:24px;box-shadow:var(--sh)}
+#lock .logo{font-size:54px}.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line)}
+.row{display:flex;gap:8px;align-items:center}.row>*{margin:0}.sp{flex:1}
+main{max-width:1100px;margin:auto;padding:16px 16px calc(90px + env(safe-area-inset-bottom))}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:none}.chips button{white-space:nowrap}.chips .on{background:var(--acc);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:20px 16px}
+.card{cursor:pointer;position:relative}.cv{aspect-ratio:2/3;border-radius:4px 10px 10px 4px;background:#888 center/cover;box-shadow:var(--sh);position:relative;overflow:hidden;display:flex;align-items:flex-end;transition:transform .25s}
+.card:hover .cv{transform:translateY(-4px) rotate(-1deg)}
+.cv:before{content:"";position:absolute;inset:0 auto 0 0;width:9px;background:linear-gradient(90deg,#0005,#fff2 60%,#0000)}
+.cv b{color:#fff;padding:10px 10px 12px 16px;font-size:14px;line-height:1.25;text-shadow:0 1px 4px #000a;width:100%;background:linear-gradient(transparent,#000b)}
+.bar{height:4px;background:var(--line);border-radius:4px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+.card small{display:block;color:var(--mute)}.tag{position:absolute;top:8px;right:8px;background:#000a;color:#fff;border-radius:8px;font-size:11px;padding:1px 7px}
+.hero{display:flex;gap:14px;background:var(--card);border-radius:20px;padding:14px;box-shadow:var(--sh);margin-bottom:8px;align-items:center}.hero .cv{width:78px;flex:none}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;font-size:30px;padding:0;box-shadow:var(--sh);z-index:6}
+.mask{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;z-index:50;animation:fi .2s}
+@media(min-width:620px){.mask{align-items:center}}
+.mbox{background:var(--bg);width:min(560px,100%);max-height:92dvh;overflow:auto;border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom))}
+@media(min-width:620px){.mbox{border-radius:24px}}@keyframes fi{from{opacity:0}}
+.stars span{font-size:28px;cursor:pointer;color:var(--line)}.stars .on{color:#e6a817}
+#reader{position:fixed;inset:0;background:var(--stage);display:none;flex-direction:column;z-index:20}#reader.on{display:flex}
+#top,#bot{background:var(--bg);padding:8px 10px;display:flex;gap:6px;align-items:center;border-color:var(--line)}
+#top{padding-top:calc(8px + env(safe-area-inset-top));border-bottom:1px solid var(--line)}#bot{padding-bottom:calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+#top button,#bot button{padding:7px 10px;min-width:38px}#top .t{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage{flex:1;overflow:auto;display:grid;perspective:2000px;padding:12px}
+.sheet{grid-area:1/1;margin:auto;background:#fff;position:relative;box-shadow:0 6px 30px #0004;backface-visibility:hidden;animation:pin .5s}
+.sheet canvas{display:block}.t1 canvas{filter:sepia(.4) brightness(.97)}.t2 canvas{filter:invert(.9) hue-rotate(180deg) brightness(.95)}
+@keyframes pin{from{opacity:.4;transform:scale(.985)}}
+.out-n{transform-origin:left center;animation:fn .65s ease-in forwards!important;z-index:2}.out-p{transform-origin:right center;animation:fp .65s ease-in forwards!important;z-index:2}
+@keyframes fn{60%{opacity:1}to{transform:rotateY(-110deg);opacity:0;filter:brightness(.7)}}@keyframes fp{60%{opacity:1}to{transform:rotateY(110deg);opacity:0;filter:brightness(.7)}}
+.hl{position:absolute;inset:0;mix-blend-mode:multiply}.hl i{position:absolute;border-radius:2px}
+.textLayer{position:absolute;inset:0;overflow:hidden;line-height:1}.textLayer :is(span,br){position:absolute;white-space:pre;color:transparent;transform-origin:0 0}
+.textLayer ::selection{background:#3b82f666}
+#hbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(70px + env(safe-area-inset-bottom));background:var(--card);border-radius:30px;box-shadow:var(--sh);padding:8px 12px;display:flex;gap:10px;z-index:30}
+#hbar b{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid #fff}
+#bot input{margin:0;padding:0;accent-color:var(--acc)}
+.hli{padding:10px;border-radius:12px;margin-bottom:8px;border-left:5px solid;background:var(--card);cursor:pointer}
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 18px;border-radius:22px;z-index:99;box-shadow:var(--sh)}
+</style></head><body>
+<div id="lock" hidden><form onsubmit="unlock();return false" id="lf"><div class="logo">📚</div><h1>Minhaz's Shelf</h1><p style="color:var(--mute)">আমার ব্যক্তিগত বইয়ের তাক</p>
+<input id="pw" type="password" placeholder="পাসওয়ার্ড" autocomplete="current-password"><br><button class="p" id="lb" style="width:100%">ঢুকি</button><p id="pe" style="color:#c33;min-height:20px"></p></form></div>
+
+<div id="app" hidden>
+<header><div class="row"><h1 class="sp">📚 Minhaz's Shelf</h1><button onclick="settings()" title="সেটিংস">⚙️</button></div>
+<div class="row" style="margin-top:8px"><input id="q" placeholder="🔍 বই বা লেখক খুঁজুন" oninput="render()"><select id="fcat" onchange="render()" style="max-width:46%"></select></div></header>
+<main><div class="chips" id="chips"></div><div id="hero"></div><div id="stats" style="color:var(--mute);font-size:14px;margin:4px 0 14px"></div><div class="grid" id="grid"></div></main>
+<button class="fab p" onclick="form()" title="বই যোগ করুন">＋</button></div>
+
+<div id="toast" hidden></div><div id="reader"><div id="top"><button onclick="history.back()">←</button><div class="t" id="rt"></div>
+<button id="bm" onclick="tuneBtn()" title="টিউন">🎵</button><button onclick="tone=(tone+1)%3;$('#stage').className='t'+tone" title="পাতার রঙ">🌓</button><button onclick="zm(-.2)">−</button><button onclick="zm(.2)">＋</button><button onclick="hlList()" title="হাইলাইট">🖍</button><button onclick="rmenu()">⋯</button></div>
+<div id="stage"></div>
+<div id="bot"><button onclick="go(cur-1,-1)">‹</button><input id="sl" type="range" min="1" value="1" style="flex:1" oninput="$('#pn').textContent=this.value+' / '+pdf.numPages" onchange="go(+this.value,this.value>cur?1:-1)"><span id="pn" style="min-width:70px;text-align:center;font-size:14px"></span><button onclick="go(cur+1,1)">›</button></div></div>
+<div id="hbar" hidden><b style="background:#ffe45c" onclick="hlApply('#ffe45c')"></b><b style="background:#8be28b" onclick="hlApply('#8be28b')"></b><b style="background:#ff9fc4" onclick="hlApply('#ff9fc4')"></b><b style="background:#8fc7ff" onclick="hlApply('#8fc7ff')"></b></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CATS=['উপন্যাস','গল্প / ছোটগল্প','ধর্ম ও ইসলাম','আত্মউন্নয়ন','জীবনী','ইতিহাস','বিজ্ঞান','প্রযুক্তি ও প্রোগ্রামিং','ব্যবসা ও অর্থনীতি','রহস্য / থ্রিলার','কল্পবিজ্ঞান','মনোবিজ্ঞান','দর্শন','রোমান্স','ফ্যান্টাসি','কবিতা','প্রবন্ধ','আত্মজীবনী','ভ্রমণ','রাজনীতি','সমাজবিজ্ঞান','শিক্ষা','ক্যারিয়ার','স্বাস্থ্য ও ফিটনেস','রান্না','শিশুসাহিত্য','কমিকস / গ্রাফিক নভেল','অনুবাদ','শিল্প ও সংস্কৃতি','আইন','অন্যান্য'];
+let custom=JSON.parse(localStorage.cc||'[]'),books=[],fst='all',B,pdf,cur=1,zoom=1,tone=0,busy=false,askedEnd=false;
+const allCats=()=>[...CATS,...custom];
+/* ---------- lock (Supabase auth) ---------- */
+const CFG=window.CFG||{};let sb=null,uid=localStorage.uid||null;
+if(CFG.url&&!/YOUR/.test(CFG.url+CFG.key))sb=supabase.createClient(CFG.url,CFG.key);
+const toast=m=>{$('#toast').textContent=m;$('#toast').hidden=!m};
+async function unlock(){if(!sb)return $('#pe').textContent='config.js এ Supabase তথ্য বসানো হয়নি';
+ const b=$('#lb');b.disabled=true;const{error}=await sb.auth.signInWithPassword({email:CFG.email,password:$('#pw').value});b.disabled=false;
+ if(error){$('#pe').textContent=/fetch|network/i.test(error.message)?'ইন্টারনেট সংযোগ নেই':'ভুল পাসওয়ার্ড';$('#lf').classList.remove('shake');void $('#lf').offsetWidth;$('#lf').classList.add('shake');$('#pw').value='';return}boot()}
+(async()=>{let x=null;if(sb){try{x=(await sb.auth.getSession()).data.session}catch{}}
+ if(x||(sb&&!navigator.onLine&&localStorage.had))boot();else $('#lock').hidden=false})();
+/* ---------- db: local cache (IndexedDB) + cloud sync ---------- */
+const db=new Promise((r,j)=>{const q=indexedDB.open('shelf2',1);q.onupgradeneeded=()=>{q.result.createObjectStore('books',{keyPath:'id'});q.result.createObjectStore('files')};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)});
+const tx=async(s,m,f)=>{const d=await db;return new Promise((r,j)=>{const t=d.transaction(s,m),o=f(t);t.oncomplete=()=>r(o&&o.result);t.onerror=()=>j(t.error)})};
+const cachePut=b=>tx('books','readwrite',t=>t.objectStore('books').put(b));
+const cacheAll=()=>tx('books','readonly',t=>t.objectStore('books').getAll()).then(r=>r||[]);
+const cacheReplace=l=>tx('books','readwrite',t=>{const o=t.objectStore('books');o.clear();l.forEach(b=>o.put(b))});
+const COLS=['id','title','author','lang','cat','status','page','pages','added','last','fin','hl','ans','rating','time','cover','file','offline'];
+const row=b=>Object.fromEntries(COLS.filter(k=>b[k]!==undefined).map(k=>[k,b[k]]));
+const getDirty=()=>new Set(JSON.parse(localStorage.dirty||'[]')),setDirty=d=>localStorage.dirty=JSON.stringify([...d]);
+let ft;
+function putBook(b){b._v=(b._v||0)+1;const d=getDirty();d.add(b.id);setDirty(d);cachePut(b);clearTimeout(ft);ft=setTimeout(flush,1500);return Promise.resolve()}
+async function flush(){if(!sb||!navigator.onLine)return;const d=getDirty();if(!d.size)return;const L=books.filter(b=>d.has(b.id)),snap=L.map(b=>[b.id,b._v]);
+ const{error}=await sb.from('books').upsert(L.map(row));if(error){console.warn(error);return}
+ const d2=getDirty();snap.forEach(([i,v])=>{if((books.find(b=>b.id==i)?._v)==v)d2.delete(i)});setDirty(d2)}
+async function pull(){if(!sb||!navigator.onLine||$('#reader').classList.contains('on'))return;
+ const{data,error}=await sb.from('books').select('*');if(error)return;
+ const d=getDirty(),loc=new Map(books.map(b=>[b.id,b]));
+ books=data.map(r=>d.has(r.id)&&loc.get(r.id)?loc.get(r.id):r);d.forEach(i=>{const l=loc.get(i);if(l&&!books.some(b=>b.id==i))books.push(l)});
+ await cacheReplace(books);const{data:p}=await sb.from('prefs').select('cats').maybeSingle();if(p?.cats){custom=p.cats;localStorage.cc=JSON.stringify(custom)}render()}
+async function syncOne(){if(!sb||!navigator.onLine||getDirty().has(B.id))return;
+ const{data}=await sb.from('books').select('page,hl,ans,status,rating,time,last').eq('id',B.id).maybeSingle();if(data)Object.assign(B,data)}
+async function savePrefs(){if(sb&&navigator.onLine)await sb.from('prefs').upsert({owner:uid,cats:custom})}
+async function getFile(id){let buf=await tx('files','readonly',t=>t.objectStore('files').get(id));if(buf)return buf;
+ if(!sb||!navigator.onLine)return null;toast('📥 বই ডাউনলোড হচ্ছে…');
+ const{data,error}=await sb.storage.from('books').download(`${uid}/${id}.pdf`);toast('');if(error||!data)return null;
+ buf=await data.arrayBuffer();tx('files','readwrite',t=>t.objectStore('files').put(buf,id));return buf}
+async function boot(){$('#lock').hidden=true;$('#app').hidden=false;
+ const x=(await sb.auth.getSession()).data.session;uid=x?.user.id||localStorage.uid;localStorage.uid=uid||'';localStorage.had=1;
+ sb.auth.onAuthStateChange(ev=>{if(ev=='SIGNED_OUT'&&navigator.onLine)location.reload()});
+ books=await cacheAll();render();
+ if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});navigator.storage?.persist?.();
+ await flush();await pull()}
+addEventListener('online',()=>{flush().then(pull)});addEventListener('pagehide',flush);
+document.addEventListener('visibilitychange',()=>{if(!sb)return;if(document.hidden)flush();else pull()});
+async function logout(){await flush();await sb.auth.signOut();['had','uid','dirty'].forEach(k=>localStorage.removeItem(k));await tx(['books','files'],'readwrite',t=>{t.objectStore('books').clear();t.objectStore('files').clear()});location.reload()}
+async function chPw(){const p=prompt('নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)');if(!p)return;if(p.length<6)return alert('পাসওয়ার্ড খুব ছোট');const{error}=await sb.auth.updateUser({password:p});alert(error?'বদলানো যায়নি: '+error.message:'পাসওয়ার্ড বদলানো হয়েছে ✅')}
+/* ---------- theme ---------- */
+const mq=matchMedia('(prefers-color-scheme:dark)');
+function theme(){const m=localStorage.th||'system',d=m=='dark'||(m=='system'&&mq.matches);document.documentElement.dataset.t=d?'dark':'light';document.querySelector('meta[name=theme-color]').content=d?'#16130f':'#f6f1e7'}
+mq.onchange=theme;theme();
+/* ---------- home ---------- */
+const hue=s=>[...s].reduce((a,c)=>a*31+c.charCodeAt(0)>>>0,7)%360;
+const cover=b=>b.cover?`background-image:url(${b.cover})`:`background:linear-gradient(135deg,hsl(${hue(b.title)} 42% 36%),hsl(${(hue(b.title)+35)%360} 48% 20%))`;
+const pct=b=>b.status=='finished'?100:b.pages?Math.round((b.page||0)/b.pages*100):0;
+const ST={want:'পড়তে চাই',reading:'পড়ছি',finished:'শেষ করেছি'};
+function render(){
+ const q=$('#q').value.trim().toLowerCase(),fc=$('#fcat').value,used=[...new Set(books.map(b=>b.cat))];
+ $('#fcat').innerHTML='<option value="">সব ক্যাটাগরি</option>'+used.map(c=>`<option ${c==fc?'selected':''}>${esc(c)}</option>`).join('');
+ $('#chips').innerHTML=[['all','সব'],['reading','📖 পড়ছি'],['want','🔖 পড়তে চাই'],['finished','✅ শেষ']].map(([k,l])=>`<button class="${fst==k?'on':''}" onclick="fst='${k}';render()">${l}</button>`).join('');
+ const L=books.filter(b=>(!q||(b.title+b.author).toLowerCase().includes(q))&&(!fc||b.cat==fc)&&(fst=='all'||b.status==fst)).sort((a,b)=>(b.last||b.added)-(a.last||a.added));
+ const c=books.filter(b=>b.status=='reading'&&b.file).sort((a,b)=>b.last-a.last)[0];
+ $('#hero').innerHTML=c&&!q?`<div class="hero" onclick="openBook(${c.id})"><div class="cv" style="${cover(c)}"></div><div style="flex:1"><small style="color:var(--mute)">যেখানে ছিলেন</small><h2 style="font-size:19px">${esc(c.title)}</h2><div style="color:var(--mute)">${esc(c.author)}</div><div class="bar"><i style="width:${pct(c)}%"></i></div><small style="color:var(--mute)">পৃষ্ঠা ${c.page||1}/${c.pages} · ${pct(c)}%</small></div><button class="p">চালিয়ে যান</button></div>`:'';
+ const fin=books.filter(b=>b.status=='finished').length,hrs=books.reduce((a,b)=>a+(b.time||0),0)/3600;
+ $('#stats').textContent=books.length?`মোট ${books.length}টি বই · শেষ ${fin}টি · পড়ার সময় ${hrs.toFixed(1)} ঘণ্টা`:'';
+ $('#grid').innerHTML=L.map(b=>`<div class="card" onclick="${b.file?`openBook(${b.id})`:`detail(${b.id})`}"><div class="cv" style="${cover(b)}">${b.cover?'':`<b>${esc(b.title)}</b>`}<span class="tag">${b.lang=='bn'?'বাংলা':'EN'}</span></div><div class="bar"><i style="width:${pct(b)}%"></i></div><div style="font-weight:600;margin-top:6px;line-height:1.3">${esc(b.title)}</div><small>${esc(b.author)}</small><small>${esc(b.cat)} · ${ST[b.status]}${b.offline?' (অফলাইন)':''}</small><button class="g" style="padding:2px 10px;margin-top:4px" onclick="event.stopPropagation();detail(${b.id})">⋯ বিস্তারিত</button></div>`).join('')||`<p style="grid-column:1/-1;text-align:center;color:var(--mute);padding:50px 0">${books.length?'কিছু পাওয়া যায়নি':'তাক এখনো খালি 🌱<br>নিচের ＋ বাটনে চেপে প্রথম বইটা যোগ করুন'}</p>`}
+/* ---------- modal ---------- */
+function modal(h){closeM();const m=document.createElement('div');m.className='mask';m.id='m';m.onclick=e=>{if(e.target==m)closeM()};m.innerHTML=`<div class="mbox">${h}</div>`;document.body.append(m)}
+const closeM=()=>$('#m')?.remove();
+/* ---------- add / edit ---------- */
+function form(id){const b=books.find(x=>x.id==id)||{};const cs=c=>`<option ${c==b.cat?'selected':''}>${esc(c)}</option>`;
+ modal(`<h2>${id?'বই সম্পাদনা':'নতুন বই'}</h2><br>${id?'':'<label>PDF ফাইল (না থাকলেও চলবে — অফলাইনে পড়া বই)</label><input type="file" id="ff" accept="application/pdf" onchange="if(!$(\'#ft\').value)$(\'#ft\').value=this.files[0].name.replace(/\\.pdf$/i,\'\')">'}
+ <label>বইয়ের নাম *</label><input id="ft" value="${esc(b.title)}"><label>লেখকের নাম</label><input id="fa" value="${esc(b.author)}">
+ <label>ভাষা</label><select id="fl"><option value="bn">বাংলা বই</option><option value="en" ${b.lang=='en'?'selected':''}>ইংরেজি বই</option></select>
+ <label>ক্যাটাগরি</label><div class="row"><select id="fc">${custom.length?`<optgroup label="আমার ক্যাটাগরি">${custom.map(cs).join('')}</optgroup>`:''}<optgroup label="জনপ্রিয় থেকে সাজানো">${CATS.map(cs).join('')}</optgroup></select><button class="g" onclick="newCat()" style="white-space:nowrap">＋ নতুন</button></div><br>
+ <label>অবস্থা</label><select id="fs">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${(b.status||'want')==k?'selected':''}>${k=='finished'?'শেষ করেছি (অফলাইনে পড়েছি)':v}</option>`).join('')}</select>
+ <div class="row"><button class="p sp" id="sv" onclick="saveForm(${id||0})">সংরক্ষণ</button><button class="g" onclick="closeM()">বাতিল</button></div>`)}
+function newCat(){const n=prompt('নতুন ক্যাটাগরির নাম');if(!n?.trim())return;const v=n.trim();if(!allCats().includes(v)){custom.push(v);localStorage.cc=JSON.stringify(custom);savePrefs()}const s=$('#fc');s.insertAdjacentHTML('afterbegin',`<option selected>${esc(v)}</option>`);s.value=v}
+async function saveForm(id){const t=$('#ft').value.trim();if(!t)return alert('বইয়ের নাম দিন');$('#sv').textContent='অপেক্ষা করুন…';
+ let b=books.find(x=>x.id==id);const isNew=!b;if(isNew)b={id:Date.now(),added:Date.now(),page:1,hl:[]};
+ Object.assign(b,{title:t,author:$('#fa').value.trim(),lang:$('#fl').value,cat:$('#fc').value,status:$('#fs').value});
+ if(b.status=='finished'&&!b.fin){b.fin=Date.now();if(!b.file)b.offline=true}
+ const f=$('#ff')?.files[0];
+ if(f){try{const buf=await f.arrayBuffer(),d=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;b.pages=d.numPages;
+  const p=await d.getPage(1),w=p.getViewport({scale:1}).width,v=p.getViewport({scale:240/w}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;b.cover=c.toDataURL('image/jpeg',.6);
+  if(!navigator.onLine)throw new Error('আপলোডের জন্য ইন্টারনেট লাগবে');toast('☁️ আপলোড হচ্ছে… একটু অপেক্ষা করুন');const{error:ue}=await sb.storage.from('books').upload(`${uid}/${b.id}.pdf`,f,{contentType:'application/pdf',upsert:true});toast('');if(ue)throw ue;
+  await tx('files','readwrite',t=>t.objectStore('files').put(buf,b.id));b.file=true}catch(e){toast('');$('#sv').textContent='সংরক্ষণ';return alert('সমস্যা: '+e.message)}}
+ await putBook(b);if(isNew)books.push(b);closeM();render()}
+/* ---------- details ---------- */
+function detail(id){const b=books.find(x=>x.id==id);
+ modal(`<div class="row" style="align-items:flex-start;gap:14px"><div class="cv" style="${cover(b)};width:90px;flex:none;aspect-ratio:2/3;border-radius:4px 10px 10px 4px"></div><div><h2 style="font-size:21px">${esc(b.title)}</h2><div style="color:var(--mute)">${esc(b.author)||'—'}</div><div style="margin-top:6px">${esc(b.cat)} · ${b.lang=='bn'?'বাংলা':'English'}</div><div>${ST[b.status]}${b.offline?' · অফলাইনে পড়া':''} · ${pct(b)}%</div><div class="stars">${[1,2,3,4,5].map(i=>`<span class="${i<=(b.rating||0)?'on':''}" onclick="rate(${id},${i})">★</span>`).join('')}</div></div></div><br>
+ <div style="display:grid;gap:8px">${b.file?`<button class="p" onclick="closeM();openBook(${id})">📖 ${b.page>1?'চালিয়ে যান':'পড়া শুরু করুন'}</button>`:''}
+ ${b.status!='finished'?`<button onclick="markDone(${id},true)">✅ অফলাইনে পড়ে শেষ করেছি</button>`:''}
+ <button onclick="reflect(${id})">📝 ${b.ans?'আমার উত্তরগুলো':'৫টি প্রশ্নের উত্তর দিন'}</button><button onclick="form(${id})">✏️ সম্পাদনা</button>
+ <button class="g" style="color:#c33" onclick="del(${id})">🗑 মুছে ফেলুন</button></div>`)}
+async function rate(id,n){const b=books.find(x=>x.id==id);b.rating=n;await putBook(b);detail(id)}
+async function markDone(id,off){const b=books.find(x=>x.id==id);b.status='finished';b.fin=Date.now();if(off)b.offline=true;await putBook(b);render();reflect(id,true)}
+async function del(id){if(!confirm('বইটি (PDF ও নোটসহ) সব ডিভাইস থেকে মুছে যাবে। নিশ্চিত?'))return;if(!navigator.onLine)return alert('মুছতে ইন্টারনেট লাগবে');const b=books.find(x=>x.id==id);
+ const{error}=await sb.from('books').delete().eq('id',id);if(error)return alert('মোছা যায়নি: '+error.message);if(b.file)await sb.storage.from('books').remove([`${uid}/${id}.pdf`]);
+ await tx(['books','files'],'readwrite',t=>{t.objectStore('books').delete(id);t.objectStore('files').delete(id)});const d=getDirty();d.delete(id);setDirty(d);books=books.filter(b=>b.id!=id);closeM();render()}
+const Q=['১। বইটি কি নিয়ে লেখা?','২। কোন চরিত্রটি সবচেয়ে ভালো লেগেছে এবং কেন?','৩। বই থেকে নতুন কী শিখেছি?','৪। কোন বিষয়টির সঙ্গে দ্বিমত রয়েছে?','৫। বইটি পড়ে নিজের জীবনে বা চিন্তায় কী পরিবর্তন এসেছে?'];
+function reflect(id,fresh){const b=books.find(x=>x.id==id),a=b.ans||[];
+ modal(`<h2>${fresh?'🎉 বই শেষ! ':''}${esc(b.title)}</h2><p style="color:var(--mute)">ইচ্ছা হলে উত্তর দিন, না চাইলে এখন না।</p>${Q.map((q,i)=>`<label>${q}</label><textarea rows="3" class="qa">${esc(a[i]||'')}</textarea>`).join('')}
+ <div class="row"><button class="p sp" onclick="saveAns(${id})">সংরক্ষণ</button><button class="g" onclick="closeM()">এখন না</button></div>`)}
+async function saveAns(id){const b=books.find(x=>x.id==id),v=[...document.querySelectorAll('.qa')].map(t=>t.value.trim());b.ans=v.some(Boolean)?v:null;await putBook(b);closeM();render()}
+/* ---------- settings ---------- */
+let dip;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e});
+function settings(){const m=localStorage.th||'system';
+ modal(`<h2>⚙️ সেটিংস</h2><br><label>থিম (শুধু এই অ্যাপের, ফোনের থিম বদলাবে না)</label><div class="row" style="margin:6px 0 18px">${[['system','📱 সিস্টেম'],['light','☀️ লাইট'],['dark','🌙 ডার্ক']].map(([k,l])=>`<button class="${m==k?'p':''} sp" onclick="localStorage.th='${k}';theme();settings()">${l}</button>`).join('')}</div>
+ <div style="display:grid;gap:8px">${dip?'<button class="p" onclick="dip.prompt();closeM()">📲 অ্যাপ হিসেবে ইনস্টল করুন</button>':'<p style="color:var(--mute);font-size:14px">📲 ইনস্টল: Android Chrome → ⋮ → “Install app”। iPhone Safari → Share → “Add to Home Screen”।</p>'}
+ <button onclick="exportNotes()">⬇️ নোট ও হাইলাইট ব্যাকআপ (JSON)</button><button onclick="chPw()">🔑 পাসওয়ার্ড বদলান</button><button class="g" onclick="logout()">🔒 লগআউট (এই ডিভাইস থেকে)</button></div>`)}
+function exportNotes(){const d=books.map(({cover,file,...r})=>r),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,1)],{type:'application/json'}));a.download='minhaz-shelf-notes.json';a.click()}
+/* ---------- reader ---------- */
+async function openBook(id){closeM();B=books.find(b=>b.id==id);await syncOne();const buf=await getFile(id);if(!buf)return alert('PDF পাওয়া যায়নি — অফলাইনে থাকলে আগে একবার অনলাইনে বইটি খুলে নিন');
+ pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;B.pages=pdf.numPages;if(B.status=='want')B.status='reading';
+ cur=Math.min(Math.max(B.page||1,1),pdf.numPages);askedEnd=false;$('#rt').textContent=B.title;$('#sl').max=pdf.numPages;$('#stage').innerHTML='';$('#reader').classList.add('on');
+ history.pushState({r:1},'');await go(cur,0);wake();if(localStorage.tune!='off')tuneStart(presetOf(B.cat));$('#bm').style.opacity=localStorage.tune=='off'?.4:1;tick=setInterval(()=>{if(!document.hidden){B.time=(B.time||0)+30;putBook(B)}},30000)}
+let tick,wl;async function wake(){try{wl=await navigator.wakeLock?.request('screen')}catch{}}
+function closeReader(){if(!$('#reader').classList.contains('on'))return;$('#reader').classList.remove('on');clearInterval(tick);tuneStop();wl?.release?.();$('#hbar').hidden=true;putBook(B);pdf?.destroy();render()}
+addEventListener('popstate',closeReader);
+async function mk(n){const p=await pdf.getPage(n),v0=p.getViewport({scale:1}),st=$('#stage'),fit=Math.min((st.clientWidth-24)/v0.width,(st.clientHeight-24)/v0.height)*zoom,vp=p.getViewport({scale:fit}),dpr=devicePixelRatio||1;
+ const s=document.createElement('div');s.className='sheet';s.style.width=vp.width+'px';s.style.height=vp.height+'px';s.dataset.p=n;
+ const c=document.createElement('canvas');c.width=vp.width*dpr;c.height=vp.height*dpr;c.style.cssText='width:100%;height:100%';
+ await p.render({canvasContext:c.getContext('2d'),viewport:vp,transform:dpr!=1?[dpr,0,0,dpr,0,0]:null}).promise;
+ const hl=document.createElement('div');hl.className='hl';(B.hl||[]).filter(x=>x.p==n).forEach(x=>x.r.forEach(r=>hl.insertAdjacentHTML('beforeend',`<i style="left:${r[0]}%;top:${r[1]}%;width:${r[2]}%;height:${r[3]}%;background:${x.c}"></i>`)));
+ const tl=document.createElement('div');tl.className='textLayer';tl.style.setProperty('--scale-factor',vp.scale);s.append(c,hl,tl);
+ const tc=await p.getTextContent();pdfjsLib.renderTextLayer({textContent:tc,textContentSource:tc,container:tl,viewport:vp});return s}
+async function go(n,dir=0){if(busy||!pdf||n<1||n>pdf.numPages)return;busy=true;try{const st=$('#stage'),old=st.querySelector('.sheet'),s=await mk(n);if(!dir)st.innerHTML='';st.append(s);
+ if(old&&dir){old.classList.add(dir>0?'out-n':'out-p');setTimeout(()=>old.remove(),680)}
+ cur=n;B.page=n;B.last=Date.now();putBook(B);$('#sl').value=n;$('#pn').textContent=n+' / '+pdf.numPages;
+ if(n==pdf.numPages&&dir>0&&!askedEnd&&B.status!='finished'){askedEnd=true;setTimeout(()=>confirm('🎉 বইটির শেষ পাতায় এসেছেন! শেষ করেছি হিসেবে চিহ্নিত করবেন?')&&markDone(B.id),900)}}finally{busy=false}}
+const zm=d=>{zoom=Math.min(3,Math.max(.6,zoom+d));$('#stage').innerHTML='';go(cur,0)};
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(pdf&&$('#reader').classList.contains('on')){$('#stage').innerHTML='';go(cur,0)}},300)});
+addEventListener('keydown',e=>{if(!$('#reader').classList.contains('on'))return;if(['ArrowRight','PageDown'].includes(e.key))go(cur+1,1);if(['ArrowLeft','PageUp'].includes(e.key))go(cur-1,-1)});
+let tx0,ty0;$('#stage').addEventListener('touchstart',e=>{tx0=e.touches[0].clientX;ty0=e.touches[0].clientY},{passive:true});
+$('#stage').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx0,dy=e.changedTouches[0].clientY-ty0;if(zoom<=1&&getSelection().isCollapsed&&Math.abs(dx)>70&&Math.abs(dy)<50)go(cur+(dx<0?1:-1),dx<0?1:-1)},{passive:true});
+function rmenu(){modal(`<h2>${esc(B.title)}</h2><br><div style="display:grid;gap:8px"><button onclick="closeM();markDone(B.id)">✅ বইটি শেষ করেছি</button><button onclick="closeM();reflect(B.id)">📝 ৫টি প্রশ্নের উত্তর</button><button onclick="hlList()">🖍 আমার হাইলাইট</button></div>`)}
+/* ---------- highlight ---------- */
+let st_;document.addEventListener('selectionchange',()=>{clearTimeout(st_);st_=setTimeout(()=>{const s=getSelection(),bar=$('#hbar'),a=s?.anchorNode;bar.hidden=!(a&&!s.isCollapsed&&$('#reader').classList.contains('on')&&(a.nodeType==3?a.parentElement:a).closest?.('.textLayer'))},250)});
+function hlApply(c){const s=getSelection();if(s.isCollapsed)return;const rg=s.getRangeAt(0),sh=(rg.startContainer.nodeType==3?rg.startContainer.parentElement:rg.startContainer).closest('.sheet'),sr=sh.getBoundingClientRect(),rs=[];
+ for(const r of rg.getClientRects())if(r.width>2&&r.height>2)rs.push([(r.left-sr.left)/sr.width*100,(r.top-sr.top)/sr.height*100,r.width/sr.width*100,r.height/sr.height*100]);
+ if(!rs.length)return;const x={id:Date.now(),p:+sh.dataset.p,c,t:s.toString().trim().slice(0,400),r:rs};(B.hl=B.hl||[]).push(x);
+ rs.forEach(r=>sh.querySelector('.hl').insertAdjacentHTML('beforeend',`<i style="left:${r[0]}%;top:${r[1]}%;width:${r[2]}%;height:${r[3]}%;background:${c}"></i>`));s.removeAllRanges();$('#hbar').hidden=true;putBook(B)}
+function hlList(){closeM();const L=(B.hl||[]).slice().sort((a,b)=>a.p-b.p||a.id-b.id);
+ modal(`<h2>🖍 হাইলাইট (${L.length})</h2><br>${L.map(x=>`<div class="hli" style="border-color:${x.c}" onclick="closeM();go(${x.p},${x.p>cur?1:-1})"><small style="color:var(--mute)">পৃষ্ঠা ${x.p}</small><div>${esc(x.t)}</div><button class="g" style="padding:1px 10px;margin-top:4px" onclick="event.stopPropagation();hlDel(${x.id})">মুছুন</button></div>`).join('')||'<p style="color:var(--mute)">লেখা সিলেক্ট করলে নিচে রঙিন বাটন আসবে — সেটা চাপলেই হাইলাইট হবে।</p>'}`)}
+async function hlDel(id){B.hl=B.hl.filter(x=>x.id!=id);await putBook(B);hlList();$('#stage').innerHTML='';go(cur,0)}
+/* ---------- soft tunes (generated, no files) ---------- */
+const PR={calm:{r:130.8,ch:[0,7,12,16],sc:[0,2,4,7,9],w:'sine',f:900,t:4200},dream:{r:146.8,ch:[0,7,11,14],sc:[0,2,4,7,9,11],w:'sine',f:1100,t:3600},sacred:{r:73.4,ch:[0,7,12,19],sc:[0,2,5,7,9],w:'triangle',f:600,t:6000},focus:{r:110,ch:[0,7,12,14],sc:[0,2,7,9],w:'sine',f:700,t:5200},space:{r:98,ch:[0,7,10,17],sc:[0,3,5,7,10],w:'triangle',f:800,t:4800},warm:{r:123.5,ch:[0,7,12,16],sc:[0,4,7,9],w:'triangle',f:750,t:4500},deep:{r:82.4,ch:[0,7,12,15],sc:[0,3,5,7,10],w:'sine',f:650,t:5500},noir:{r:87.3,ch:[0,3,7,10],sc:[0,3,5,7],w:'triangle',f:600,t:6000},bright:{r:174.6,ch:[0,7,12,16],sc:[0,2,4,7,9],w:'sine',f:1400,t:3000}};
+const presetOf=c=>/উপন্যাস|গল্প|রোমান্স|ফ্যান্টাসি|কবিতা/.test(c)?'dream':/ধর্ম/.test(c)?'sacred':/আত্মউন্নয়ন|ব্যবসা|ক্যারিয়ার|শিক্ষা|প্রবন্ধ/.test(c)?'focus':/বিজ্ঞান|প্রযুক্তি|কল্পবিজ্ঞান/.test(c)?'space':/ইতিহাস|জীবনী|আত্মজীবনী|রাজনীতি|সমাজ|আইন/.test(c)?'warm':/দর্শন|মনোবিজ্ঞান/.test(c)?'deep':/রহস্য|থ্রিলার/.test(c)?'noir':/ভ্রমণ|রান্না|শিশু|কমিক|স্বাস্থ্য|শিল্প/.test(c)?'bright':'calm';
+let A=null;
+function tuneStart(k){tuneStop();const p=PR[k]||PR.calm,c=new(window.AudioContext||webkitAudioContext)(),m=c.createGain();m.gain.value=0;m.gain.linearRampToValueAtTime(.55,c.currentTime+3);
+ const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=p.f;const d=c.createDelay(1.5);d.delayTime.value=.55;const fb=c.createGain();fb.gain.value=.45;d.connect(fb);fb.connect(d);lp.connect(m);lp.connect(d);d.connect(m);m.connect(c.destination);
+ p.ch.forEach(s=>[-4,4].forEach(dt=>{const o=c.createOscillator(),g=c.createGain();o.type=p.w;o.frequency.value=p.r*2**(s/12);o.detune.value=dt;g.gain.value=.05;o.connect(g);g.connect(lp);o.start()}));
+ const l=c.createOscillator(),lg=c.createGain();l.frequency.value=.07;lg.gain.value=p.f*.3;l.connect(lg);lg.connect(lp.frequency);l.start();
+ const note=()=>{const o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.frequency.value=p.r*2**((p.sc[Math.random()*p.sc.length|0]+12)/12);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09,t+.08);g.gain.exponentialRampToValueAtTime(.0005,t+3.5);o.connect(g);g.connect(lp);o.start(t);o.stop(t+4)};
+ A={c,m,iv:setInterval(()=>Math.random()<.8&&note(),p.t)}}
+function tuneStop(){if(!A)return;const{c,m,iv}=A;clearInterval(iv);m.gain.setTargetAtTime(0,c.currentTime,.5);setTimeout(()=>c.close(),2500);A=null}
+function tuneBtn(){if(A){tuneStop();localStorage.tune='off';$('#bm').style.opacity=.4}else{localStorage.tune='on';tuneStart(presetOf(B.cat));$('#bm').style.opacity=1}}
+document.addEventListener('visibilitychange',()=>{if(A)document.hidden?A.c.suspend():A.c.resume()});
+</script></body></html>
