@@ -175,9 +175,12 @@ async function saveForm(id){const t=$('#ft').value.trim();if(!t)return alert('�
 function detail(id){const b=books.find(x=>x.id==id);
  modal(`<div class="row" style="align-items:flex-start;gap:14px"><div class="cv" style="${cover(b)};width:90px;flex:none;aspect-ratio:2/3;border-radius:4px 10px 10px 4px"></div><div><small style="color:var(--acc);font-weight:700">${ord(serOf(b.id))} বই</small><h2 style="font-size:21px">${esc(b.title)}</h2><div style="color:var(--mute)">${esc(b.author)||'—'}</div><div style="margin-top:6px">${esc(b.cat)} · ${b.lang=='bn'?'বাংলা':'English'}</div><div>${ST[b.status]}${b.offline?' · অফলাইনে পড়া':''} · ${pct(b)}%</div><div class="stars">${[1,2,3,4,5].map(i=>`<span class="${i<=(b.rating||0)?'on':''}" onclick="rate(${id},${i})">★</span>`).join('')}</div></div></div><br>
  <div style="display:grid;gap:8px">${b.file?`<button class="p" onclick="closeM();openBook(${id})">📖 ${b.page>1?'চালিয়ে যান':'পড়া শুরু করুন'}</button>`:''}
+ ${b.file?`<button onclick="dlBook(${id})">⬇️ PDF ডাউনলোড করুন</button>`:''}
  ${b.status!='finished'?`<button onclick="markDone(${id},true)">✅ অফলাইনে পড়ে শেষ করেছি</button>`:''}
  <button onclick="reflect(${id})">📝 ${b.ans?'আমার উত্তরগুলো':'৫টি প্রশ্নের উত্তর দিন'}</button><button onclick="bookForm(${id})">✏️ সম্পাদনা</button><button onclick="ordForm(${id})">↕ ক্রম বদলান</button>
  <button class="g" style="color:#c33" onclick="del(${id})">🗑 মুছে ফেলুন</button></div>`)}
+async function dlBook(id){const b=books.find(x=>x.id==id),buf=await getFile(id);if(!buf)return alert('PDF পাওয়া যায়নি — ইন্টারনেট আছে কিনা দেখুন');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/pdf'}));a.download=(b.title.replace(/[\\\/:*?"<>|]+/g,' ').trim()||'book')+'.pdf';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),60000)}
 function ordForm(id){const n=books.length,c=serOf(id);
  modal(`<h2>↕ ক্রম বদলান</h2><p style="color:var(--mute)">এখন এটি ${ord(c)} বই (মোট ${bd(n)}টি)</p>
  <div class="row"><button class="sp" onclick="moveTo(${id},${c-1})" ${c<2?'disabled':''}>⬆ এক ধাপ আগে</button><button class="sp" onclick="moveTo(${id},${c+1})" ${c>=n?'disabled':''}>⬇ এক ধাপ পরে</button></div><br>
